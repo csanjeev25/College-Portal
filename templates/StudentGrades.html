@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="static/favicon.ico" type='image/x-icon'/>
+    <link rel="stylesheet" type="text/css" href="StudentGrades.css">
+    <title>Grades</title>
+</head>
+<body background="\static\grades4.jpg">
+
+        <br/><center><div style="text-align:right" class=""WelcomeMessage>
+            <h2><a href="{{ url_for('clearsession') }}"> Log out </a></div></h2>
+        <br/><br>
+     <br/><center><div style="text-align:left" class=""WelcomeMessage><h1>
+{% if sname %}
+            Hi {{sname.sn}}!!!
+    <br>
+{% endif %}
+<br>
+</h1>
+        <br/></div>
+</div>
+<div>
+        <table border = 1 >
+         <thead bgcolor="#00FF00">
+            <td>Course Name</td>
+            <td>MidTerm1</td>
+            <td>MidTerm2</td>
+            <td>MidTerm3</td>
+            <td>FinalGrade</td>
+         </thead>
+         {% for r in rows %}
+            <tr bgcolor="#FFFFFF">
+               <td bgcolor="#FFFFFF">{{r["cn"]}}</td>
+               <td bgcolor="#FFFFFF">{{r["mt1"]}}</td>
+               <td bgcolor="#FFFFFF">{{r["mt2"]}}</td>
+               <td bgcolor="#FFFFFF">{{r["mt3"]}}</td>
+               <td bgcolor="#FFFFFF">{{r["fg"]}}</td>
+            </tr>
+         {% endfor %}
+      </table>
+</div>
+</body>
+</html>
