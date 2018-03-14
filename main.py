@@ -73,4 +73,59 @@ def login():
 				error="Password is incorrect"
 				return redirect(url_for('main',name=error))
 
+@app.route('/success/<name>')
+def success(name):
+	return name
+
+@app.route('/signup',methods=['GET','POST'])
+def signup():
+	conn=sqllite3.connect('database.py')
+	cur=conn.cursor()
+	name=request.form.get('Name')
+	user=request.form.get('user')
+	user_name=request.form['UserName']
+	password=request.form['Password']
+	email=request.form['email']
+
+	if not user or not user_name or not password or not email or not name:
+		error="Field empty"
+		return redirect(url_for('main',name=error))
+	if user='Student':
+		 c.execute("select UserName from StudentLoginTable")
+        result = cur.fetchall()
+        mark = 0
+        for row in result:
+            if row == (user_name,):
+                mark = 1
+                msg = "User already exists"
+                break
+        if mark !=1:
+            sql = "INSERT into StudentLogin(StudentName, UserName, Password, Email) values(?,?,?,?)"
+            i = 1
+            values = (name, user, pwd, email)
+            cur.execute(sql, values)
+            msg = "User has been registered successfully"
+        conn.commit()
+        conn.close()
+        return redirect(url_for('success', name=msg))
+    elif person == 'Faculty':
+        cur.execute("select UserName from FacultyLogin")
+        result = c.fetchall()
+        mark = 0
+        for row in f:
+            if row == (user,):
+                mark = 1
+                msg = "User already exists"
+                break
+        if mark != 1:
+            sql = "insert into FacultyLoginTable(FacultyName, UserName, Password, Email) values(?,?,?,?)"
+            result = 1
+            values = (name, user, pwd, email)
+            cur.execute(sql, values)
+            msg = "User has been registered successfully"
+        conn.commit()
+        conn.close()
+return redirect(url_for('success', name=msg))
+
+
 global globalFID
