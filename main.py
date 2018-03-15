@@ -1,166 +1,129 @@
-from flask import Flask,url_for,request,render_template,session,redirect
-import sqlite3
+from flask import Flask, redirect, url_for, request,render_template,session
+app = Flask(__name__)
 import smtplib
-
-app=Flask(__name__)
+import sqlite3
 
 @app.route('/')
-@app.route('/<user_name>')
-def main(name=None):
-	return render_template('home.html',session=session,text=name)
+@app.route('/<name>')
+def index(name=None):
+    return render_template('HomePage.html',session=session,text=name)
+
+@app.route('/success/<name>')
+def success(name):
+    return name
+
+@app.route('/signuppage')
+def signuppage():
+   return render_template('SignUp.html')
 
 @app.route('/forgotpassword')
 @app.route('/forgotpassword/<name>')
 def forgotpassword(name=None):
-	return render_template('Forgot.html',text=name)
+   return render_template('Forgot.html',text=name)
 
-@app.route('/login',methods=['GET','POST'])
+@app.route('/login',methods = ['POST', 'GET'])
 def login():
-	conn=sqlite3.connect('database.db')
-	cur=conn.cursor()
-	user=request.form.get('user')
-	user_name=request.form['UserName']
-	pswd=request.form['Password']
-	if not user or not user or not pswd:
-		error="Any of one field is empty"
-		return redirect(url_for('main',name=error))
-	if user == 'Student':
-		cur.execute('SELECT Paswword from StudentLoginTable WHERE UserName=?',(user_name,))
-		result=cur.fetchall()
-		if not result:
-			error='UserName is incorrect'
-			return redirect(url_for('main',name=error))
-		for row in result:
-			cur.execute("SELECT SID from StudentLoginTable WHERE UserName=?",(user_name,))
-			result1=cur.fetchone()
-			session['id']=result1
-			con=sqlite3.connect('database.db')
-			con.row_factory=sqlite3.Row
-			curr=con.cursor()
-			sid=session['id']
-			curr.execute("SELECT StudentName FROM StudentLoginTable WHERE SID=?",(sid,))
-			stu_name=curr.fetchone()
-			con2.sqlite3.connect('database.py')
-			con2.row_factory=sqlite3.Row
-			cur2=con2.cursor()
-			cur2.execute("SELECT c.CourseName,g.MidTerm1,g.MidTerm2,g.MidTerm3,g.FinalGrade FROM GradeTable g INNER JOIN CourseTable c on g.CourseId=c.CourseId WHERE g.SID=?",sid)
-			rows=cur2.fetchall()
-			return render_template('StudentGrades.html',stu_name=stu_name,rows=rows)
-		else:
-			error="Password is incorrect"
-			return redirect(url_for('main',name=error))
-	elif user=='Faculty':
-		cur.execute("SELECT Password FROM FacultyLogin where UserName =?",(user_name,))
-		result=fetchall()
-		if not result:
-			error="UserName is incorrect"
-			result redirect(url_for('main',name=error))
-		for row in result:
-			if rows==(pws,):
-				cur.execute("SELECT FID FROM FacultyLogin WHERE UserName=?",(user_name,))
-				result=cur.fetchone()
-				global globalFID
-				globalFID=result
-				session['id']=result
-				con.connect('database.py')
-				con.row_factory=sqlite3.Row
-				cur.con.cursor()
-				cur.execute("SELECT FacultyName  FROM FacultyLogin WHERE FID=?",result)
-				sname=cur.fetchone()
-				con2=sqlite3.connect()
-				con2.row_factory=sqlite3.Row
-				cur1=con2.cursor()
-				cur1.execute("SELECT s.StudentName,g.SID,g.CourseId,g.MidTerm1,g.MidTerm2,g.MidTerm3 FROM GradeTable g Inner Join StudentLoginTable s on g.SID=S.SID WHERE g.FID=?",result)
-				row2=cur1.fetchall()
-				for i in row2:
-					return render_template('InstructorModule.html',sname=sname,rows=row2,link=None)
-			else:
-				error="Password is incorrect"
-				return redirect(url_for('main',name=error))
-
-@app.route('/success/<name>')
-def success(name):
-	return name
-
-@app.route('/signup',methods=['GET','POST'])
-def signup():
-	conn=sqlite3.connect('database.py')
-	cur=conn.cursor()
-	name=request.form.get('Name')
-	user=request.form.get('user')
-	user_name=request.form['UserName']
-	password=request.form['Password']
-	email=request.form['email']
-
-	if not user or not user_name or not password or not email or not name:
-		error="Field empty"
-		return redirect(url_for('main',name=error))
-	if user='Student':
-		 c.execute("select UserName from StudentLoginTable")
-        result = cur.fetchall()
-        mark = 0
-        for row in result:
-            if row == (user_name,):
-                mark = 1
-                msg = "User already exists"
-                break
-        if mark !=1:
-            sql = "INSERT into StudentLoginTable(StudentName, UserName, Password, Email) values(?,?,?,?)"
-            i = 1
-            values = (name, user, pwd, email)
-            cur.execute(sql, values)
-            msg = "User has been registered successfully"
-        conn.commit()
-        conn.close()
-        return redirect(url_for('success', name=msg))
-    elif person == 'Faculty':
-        cur.execute("select UserName from FacultyLogin")
-        result = c.fetchall()
-        mark = 0
+    conn = sqlite3.connect('database.py')
+    c = conn.cursor()
+    SIDtopass = 0
+    person = request.form.get('person','')
+    user1 = request.form['UserName']
+    pwd1 = request.form['Password']
+    if not person or not user or not pwd:
+        error = "Any of the fields cannot be left blank"
+        return redirect(url_for('index', name=error))
+    if person == 'Student':
+        c.execute("select Password from StudentLoginTable where UserName = ?",(user,))
+        f = c.fetchall()
+        if not f:
+            error = "UserName is incorrect!"
+            return redirect(url_for('index', name=error))
         for row in f:
-            if row == (user,):
-                mark = 1
-                msg = "User already exists"
-                break
-        if mark != 1:
-            sql = "insert into FacultyLoginTable(FacultyName, UserName, Password, Email) values(?,?,?,?)"
-            result = 1
-            values = (name, user, pwd, email)
-            cur.execute(sql, values)
-            msg = "User has been registered successfully"
-        conn.commit()
-        conn.close()
-return redirect(url_for('success', name=msg))
+            if row == (pwd,):
+                c.execute("select SID from StudentLoginTable where UserName = ?",(user,))
+                f = c.fetchone()
+                session['id']=f;
+                con = sqlite3.connect('database.db')
+                con.row_factory = sqlite3.Row
+                cur = con.cursor()
+                sid = session['id']
+                cur.execute("SELECT StudentName as sn FROM StudentLoginTable WHERE SID=?", sid)
+                sname1 = cur.fetchone()
+                con1 = sqlite3.connect('database.db')
+                con1.row_factory = sqlite3.Row
+                cur1 = con1.cursor()
+                cur1.execute(
+                    "SELECT c.CourseName as cn,g.MidTerm1 as mt1,g.MidTerm2 as g.MidTerm3 as mt3,g.FinalGrade as fg FROM GradeTable g Inner Join CourseTable c on g.CourseId=c.CourseId WHERE g.SID=?",
+                    sid)
+                rows = cur1.fetchall()
+                return render_template('StudentGrades.html',sname=sname1,rows=rows)
+
+            else:
+                error = "Password is incorrect!"
+                return redirect(url_for('index', name=error))
+    elif person == 'Faculty':
+        c.execute("select Password from FacultyLoginTable where UserName = ?", (user,))
+        f = c.fetchall()
+        if not f:
+            error = "UserName is incorrect!"
+            return redirect(url_for('index', name=error))
+        for row in f:
+            if row == (pwd,):
+                c.execute("select FID from FacultyLoginTable where UserName = ?", (user,))
+                f = c.fetchone()
+                global globalFID
+                globalFID = f
+                session['id']=f
+                fid = session['id']
+                con = sqlite3.connect('database.db')
+                con.row_factory = sqlite3.Row
+                cur = con.cursor()
+                cur.execute("SELECT FacultyName as fn FROM FacultyLoginTable WHERE FID=?", fid)
+                sname2 = cur.fetchone()
+                con1 = sqlite3.connect('database.db')
+                con1.row_factory = sqlite3.Row
+                cur1 = con1.cursor()
+                cur1.execute(
+                    "SELECT s.StudentName as sn,g.SID as sid,g.CourseId as crid,g.MidTerm1 as mt1,g.MidTerm2 as mt2,g.MidTerm3 as mt3,g.FinalGrade as fg FROM GradeTable g Inner Join StudentLoginTable s on g.SID=S.SID WHERE g.FID=?",
+                    fid)
+                rows2 = cur1.fetchall()
+                return render_template('Instructormodule.html', sname=sname2, rows=rows2,link=None)
+
+            else:
+                error = "Password is incorrect!"
+                return redirect(url_for('index', name=error))
+
 
 @app.route('/facultylogindisplay/<fidvalue>')
 def facultylogindisplay(fidvalue):
-	session['id']=fidvalue
-	conn=sqlite3.connect('database.py')
-	con.row_factory=sqlite3.Row
-	cur=conn.cursor()
-	fid=int(fidvalue[0])
-	cur.execute("SELECT FacultyName FROM FacultyLoginTable WHERE FID=?",fid)
-	sname=cur.fetchone()
-	con1=sqlite3.connect('database.db')
-	con1.row_factory=sqlite3.Row
-	cur1=con1.cursor()
-	cur1.execute("SELECT s.StudentName,g.SID,g.CourseId,g.MidTerm1,g.MidTerm2,g.MidTerm3,g.FinalGrade FROM GradeTable g INNER JOIN StudentLoginTable ON g.SID=s.SID WHERE g.FID=?",fid)
-	rows=cur1.fetchall()
-	return render_template('InstructorModule.html',sname=sname,rows=rows,a=None,b=None,c=None)
+    session['id'] = fidvalue
+    con = sqlite3.connect('database.db')
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    fi = int(fidvalue[0])
+    cur.execute("SELECT FacultyName as fn FROM FacultyLoginTable WHERE FID=?", fi)
+    sname2 = cur.fetchone()
+    con1 = sqlite3.connect('database.db')
+    con1.row_factory = sqlite3.Row
+    cur1 = con1.cursor()
+    cur1.execute(
+        "SELECT s.StudentName as sn,g.SID as sid,g.CourseId as crid,g.MidTerm1 as mt1,g.MidTerm2 as mt2,g.MidTerm3 as mt3,g.FinalGrade as fg FROM GradeTable g Inner Join StudentLoginTable s on g.SID=S.SID WHERE g.FID=?",
+        fi)
+    rows2 = cur1.fetchall()
+    return render_template('Instructormodule.html', sname=sname2, rows=rows2,a=None,b=None,c=None)
+
 
 @app.route('/forgothandling',methods = ['POST', 'GET'])
 def forgothandling():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(sqlite_file)
     c = conn.cursor()
     email = request.form['Email']
-    user = request.form.get('user', '')
-
-    if not email or not user:
+    person = request.form.get('person', '')
+    if not email or not person:
         error = "Any of the fields cannot be left blank"
         return redirect(url_for('forgotpassword', name=error))
-
-    if user == 'Student':
-        c.execute("select decryption(Password) from StudentLoginTable where email = ?", (email,))
+    if person == 'Student':
+        c.execute("select Password from StudentLoginTable where email = ?", (email,))
         f = c.fetchone()
         if not f:
             error = "Email entered is incorrect!"
@@ -175,14 +138,12 @@ def forgothandling():
             smtpserver.ehlo()
             smtpserver.login(gmail_user, gmail_pwd)
             header = 'To:' + to + '\n' + 'From: ' + gmail_user + '\n' + 'Subject:Confidential Message \n'
-            print
-            header
             msg = header + '\n This message contains your password to College Portal \n\n' + str(f[0])
             smtpserver.sendmail(gmail_user, to, msg)
             smtpserver.quit()
         message = "An Email containing password has been sent to your registered email ID"
         return redirect(url_for('forgotpassword', name=message))
-    elif user == 'Faculty':
+    elif person == 'Faculty':
         c.execute("select Password from FacultyLoginTable where Email = ?", (email,))
         f = c.fetchall()
         if not f:
@@ -198,8 +159,6 @@ def forgothandling():
             smtpserver.ehlo()
             smtpserver.login(gmail_user, gmail_pwd)
             header = 'To:' + to + '\n' + 'From: ' + gmail_user + '\n' + 'Subject:Confidential Message \n'
-            print
-            header
             msg = header + '\n This message contains your password to College Portal \n\n' + str(f)
             smtpserver.sendmail(gmail_user, to, msg)
             smtpserver.quit()
@@ -207,4 +166,106 @@ def forgothandling():
             return redirect(url_for('forgotpassword', name=message))
 
 
+@app.route('/updategrades', methods=['GET', 'POST'])
+def updategrades():
+    connection = sqlite3.connect(sqlite_file)
+    cr = connection.cursor()
+    cid=request.form.get('CourseId',0)
+    sid=request.form.get('StudentId',0)
+    mt1x=request.form.get('MidTerm1',0)
+    mt2x=request.form.get('MidTerm2',0)
+    mt3x=request.form.get('MidTerm3',0)
+    fgx=request.form.get('FinalGrades','A')
+    global globalSID
+    global globalFID
+    task = (mt1, mt2, mt3, fg, sid, globalFID[0], cid)
+    sql = "update GradeTable set MidTerm1 = ?, MidTerm2 = ?, MidTerm3 = ?, FinalGrade = ? where SID = ? and FID = ? and CourseId = ?"
+    cr.execute(sql,task)
+    a = cr.rowcount
+    if a == 0:
+        return 'The student didnot register the course'
+    else:
+        connection.commit()
+        connection.close()
+        con = sqlite3.connect('database.db')
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        z = session['id']
+        cur.execute("SELECT FacultyName as aa FROM FacultyLoginTable WHERE FID=?", z)
+        sname2 = cur.fetchone()
+        con1 = sqlite3.connect('database.db')
+        con1.row_factory = sqlite3.Row
+        cur1 = con1.cursor()
+        cur1.execute(
+        "SELECT s.StudentName as sn,g.SID as sid,g.CourseId as crid,g.MidTerm1 as mt1,g.MidTerm2 as mt2,g.MidTerm3 as mt3,g.FinalGrade as fg FROM GradeTable g Inner Join StudentLoginTable s on g.SID=S.SID WHERE g.FID=?",
+        z)
+        rows2 = cur1.fetchall()
+        return render_template('Instructormodule.html', sname=sname2, rows=rows2, link=None)
+
+
+@app.route('/callhtml/<a>/<b>/<c>/<d>/<e>' , methods=['GET', 'POST'])
+def callhtml(a,b,c,d,e):
+    return render_template('update.html',a=a,b=b,c=c,d=d,e=e)
+
+
+@app.route('/clear')
+def clearsession():
+    session.clear()
+    return redirect(url_for('index'))
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    conn = sqlite3.connect(sqlite_file)
+    c = conn.cursor()
+    name = request.form['Name']
+    person = request.form.get('person', '')
+    user1 = request.form['UserName']
+    pwd1 = request.form['Password']
+    email = request.form['email']
+    if not person or not user or not pwd or not email or not name:
+        error = "Any of the fields cannot be left blank"
+        return redirect(url_for('success', name=error))
+    if person == 'Student':
+        c.execute("select UserName from StudentLoginTable")
+        f = c.fetchall()
+        mark = 0
+        for row in f:
+            if row == (user,):
+                mark = 1
+                msg = "User already exists"
+                break
+        if mark !=1:
+            sql = "insert into StudentLoginTable(StudentName, UserName, Password, Email) values(?,?,?,?)"
+            i = 1
+            values = (name, user, pwd, email)
+            c.execute(sql, values)
+            msg = "User has been registered successfully"
+        conn.commit()
+        conn.close()
+        return redirect(url_for('success', name=msg))
+    elif person == 'Faculty':
+        c.execute("select UserName from FacultyLoginTable")
+        f = c.fetchall()
+        mark = 0
+        for row in f:
+            if row == (user,):
+                mark = 1
+                msg = "User already exists"
+                break
+        if mark != 1:
+            sql = "insert into FacultyLoginTable(FacultyName, UserName, Password, Email) values(?,?,?,?)"
+            i = 1
+            values = (name, user, pwd, email)
+            c.execute(sql, values)
+            msg = "User has been registered successfully"
+        conn.commit()
+        conn.close()
+        return redirect(url_for('success', name=msg))
+
 global globalFID
+app.secret_key = 'database.db'
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
