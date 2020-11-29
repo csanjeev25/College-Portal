@@ -27,8 +27,8 @@ def login():
     c = conn.cursor()
     SIDtopass = 0
     person = request.form.get('person','')
-    user1 = request.form['UserName']
-    pwd1 = request.form['Password']
+    user = request.form['UserName']
+    pwd = request.form['Password']
     if not person or not user or not pwd:
         error = "Any of the fields cannot be left blank"
         return redirect(url_for('index', name=error))
@@ -219,8 +219,8 @@ def signup():
     c = conn.cursor()
     name = request.form['Name']
     person = request.form.get('person', '')
-    user1 = request.form['UserName']
-    pwd1 = request.form['Password']
+    user = request.form['UserName']
+    pwd = request.form['Password']
     email = request.form['email']
     if not person or not user or not pwd or not email or not name:
         error = "Any of the fields cannot be left blank"
